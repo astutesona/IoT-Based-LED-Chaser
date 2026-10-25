@@ -1,0 +1,498 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .title { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 24px; font-weight: bold; fill: #f8fafc; }
+      .subtitle { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 13px; fill: #94a3b8; }
+      .section-hdr { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 15px; font-weight: 600; fill: #38bdf8; }
+      .label { font-family: 'Segoe UI', monospace; font-size: 11px; fill: #e2e8f0; }
+      .pin-lbl { font-family: 'Segoe UI', monospace; font-size: 10px; font-weight: 600; fill: #f1f5f9; }
+      .note-txt { font-family: 'Segoe UI', sans-serif; font-size: 11px; fill: #cbd5e1; }
+      
+      /* Module boxes */
+      .box-uno { fill: #00878a; stroke: #005f60; stroke-width: 2; rx: 8; }
+      .box-relay { fill: #1e293b; stroke: #3b82f6; stroke-width: 2; rx: 8; }
+      .box-breadboard { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2; rx: 8; }
+      .box-card { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 6; }
+      .box-subcard { fill: #0f172a; stroke: #475569; stroke-width: 1; rx: 4; }
+      
+      /* Components */
+      .relay-unit { fill: #1d4ed8; stroke: #60a5fa; stroke-width: 1.5; rx: 4; }
+      .led-green { fill: #22c55e; stroke: #15803d; stroke-width: 1.5; }
+      .resistor { fill: #fed7aa; stroke: #c2410c; stroke-width: 1.5; rx: 2; }
+      .buzzer { fill: #475569; stroke: #94a3b8; stroke-width: 2; }
+      
+      /* Wire classes */
+      .wire-5v { stroke: #ef4444; stroke-width: 2.5; fill: none; stroke-linecap: round; }
+      .wire-gnd { stroke: #0284c7; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-dasharray: 6 3; }
+      .wire-sig { stroke: #38bdf8; stroke-width: 1.8; fill: none; stroke-linecap: round; }
+      .wire-switched { stroke: #10b981; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .wire-buzzer { stroke: #c084fc; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .wire-power { stroke: #f59e0b; stroke-width: 2.5; fill: none; stroke-linecap: round; }
+      
+      /* Pins & Dots */
+      .pin-dot { fill: #f8fafc; stroke: #0f172a; stroke-width: 1.5; }
+      .junction { fill: #ef4444; }
+      .junction-gnd { fill: #0284c7; }
+    </style>
+
+    <!-- Resistor band definitions -->
+    <linearGradient id="resistorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="25%" stop-color="#ea580c"/>
+      <stop offset="35%" stop-color="#ea580c"/>
+      <stop offset="45%" stop-color="#fdba74"/>
+      <stop offset="55%" stop-color="#ea580c"/>
+      <stop offset="65%" stop-color="#ea580c"/>
+      <stop offset="75%" stop-color="#fdba74"/>
+      <stop offset="85%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+
+  <!-- Header Banner -->
+  <g transform="translate(40, 45)">
+    <text class="title" x="0" y="0">IoT Based LED Chaser (Running Lights) - Complete Circuit Schematic</text>
+    <text class="subtitle" x="0" y="24">Standard Wiring: Arduino Uno R3, 8-Channel 5V Optocoupled Relay (Active-LOW), 8x 330Ω Resistors, 8x Green LEDs, 5V Active Buzzer</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 1. POWER SOURCE & ARDUINO UNO R3           -->
+  <!-- ========================================== -->
+  <g transform="translate(40, 110)">
+    <!-- 9V 1A Adapter Box -->
+    <rect x="0" y="0" width="130" height="70" class="box-card" />
+    <text class="section-hdr" x="12" y="24">9V 1A SMPS</text>
+    <text class="subtitle" x="12" y="42">DC Power Adapter</text>
+    <text class="label" x="12" y="58">Barrel Jack (Center +)</text>
+    <!-- Wire to Uno barrel jack -->
+    <path d="M 130 35 L 180 35 L 180 150 L 210 150" class="wire-power" />
+    <circle cx="210" cy="150" r="4" fill="#f59e0b" />
+    <text class="label" x="135" y="30" fill="#f59e0b">9V DC</text>
+
+    <!-- Arduino Uno Board -->
+    <g transform="translate(0, 110)">
+      <rect x="0" y="0" width="260" height="420" class="box-uno" />
+      <rect x="15" y="15" width="40" height="50" fill="#94a3b8" rx="2" />
+      <text class="pin-lbl" x="20" y="45" fill="#0f172a">USB</text>
+
+      <rect x="15" y="340" width="35" height="40" fill="#334155" rx="3" />
+      <circle cx="210" cy="40" r="4" class="pin-dot" /> <!-- Barrel jack connect -->
+      
+      <!-- MCU Chip -->
+      <rect x="75" y="160" width="110" height="150" fill="#1e293b" rx="4" stroke="#475569" stroke-width="1.5" />
+      <text class="pin-lbl" x="88" y="235" fill="#94a3b8" font-size="12">ATmega328P</text>
+      <text class="pin-lbl" x="105" y="255" fill="#64748b" font-size="9">16.0 MHz</text>
+
+      <text class="title" x="70" y="55" font-size="18">ARDUINO</text>
+      <text class="subtitle" x="70" y="75" fill="#e2e8f0" font-weight="600">UNO R3</text>
+
+      <!-- Digital Pins Header (Right side of Uno) -->
+      <!-- D2 to D10 -->
+      <g transform="translate(250, 60)">
+        <!-- D2 -->
+        <circle cx="0" cy="30" r="5" class="pin-dot" id="pin-d2"/>
+        <text class="pin-lbl" x="-32" y="34">D2</text>
+        <!-- D3 -->
+        <circle cx="0" cy="60" r="5" class="pin-dot" id="pin-d3"/>
+        <text class="pin-lbl" x="-32" y="64">D3</text>
+        <!-- D4 -->
+        <circle cx="0" cy="90" r="5" class="pin-dot" id="pin-d4"/>
+        <text class="pin-lbl" x="-32" y="94">D4</text>
+        <!-- D5 -->
+        <circle cx="0" cy="120" r="5" class="pin-dot" id="pin-d5"/>
+        <text class="pin-lbl" x="-32" y="124">D5</text>
+        <!-- D6 -->
+        <circle cx="0" cy="150" r="5" class="pin-dot" id="pin-d6"/>
+        <text class="pin-lbl" x="-32" y="154">D6</text>
+        <!-- D7 -->
+        <circle cx="0" cy="180" r="5" class="pin-dot" id="pin-d7"/>
+        <text class="pin-lbl" x="-32" y="184">D7</text>
+        <!-- D8 -->
+        <circle cx="0" cy="210" r="5" class="pin-dot" id="pin-d8"/>
+        <text class="pin-lbl" x="-32" y="214">D8</text>
+        <!-- D9 -->
+        <circle cx="0" cy="240" r="5" class="pin-dot" id="pin-d9"/>
+        <text class="pin-lbl" x="-32" y="244">D9</text>
+        <!-- D10 -->
+        <circle cx="0" cy="270" r="5" class="pin-dot" id="pin-d10"/>
+        <text class="pin-lbl" x="-36" y="274" fill="#c084fc">D10</text>
+      </g>
+
+      <!-- Power Pins Header (Bottom) -->
+      <g transform="translate(30, 410)">
+        <circle cx="60" cy="0" r="5" class="pin-dot" />
+        <text class="pin-lbl" x="48" y="-12" fill="#ef4444">5V</text>
+
+        <circle cx="100" cy="0" r="5" class="pin-dot" />
+        <text class="pin-lbl" x="86" y="-12" fill="#38bdf8">GND</text>
+      </g>
+    </g>
+
+    <!-- Active 5V Buzzer Unit -->
+    <g transform="translate(0, 560)">
+      <rect x="0" y="0" width="260" height="95" class="box-card" />
+      <circle cx="50" cy="48" r="30" class="buzzer" />
+      <circle cx="50" cy="48" r="12" fill="#1e293b" stroke="#334155" stroke-width="2" />
+      <text class="section-hdr" x="95" y="32">5V Active Buzzer</text>
+      <text class="label" x="95" y="52">Positive (+) &lt;- Uno D10</text>
+      <text class="label" x="95" y="70">Negative (-) &lt;- Common GND</text>
+      <circle cx="25" cy="48" r="4" fill="#c084fc" />
+      <circle cx="75" cy="48" r="4" fill="#0284c7" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 2. 8-CHANNEL 5V RELAY MODULE               -->
+  <!-- ========================================== -->
+  <g transform="translate(380, 110)">
+    <!-- Main Enclosure -->
+    <rect x="0" y="0" width="360" height="660" class="box-relay" />
+    
+    <!-- Title & Optocoupler Note -->
+    <text class="section-hdr" x="20" y="30">8-Channel 5V Relay Module (Active-LOW)</text>
+    <text class="subtitle" x="20" y="48">PC817 Optocouplers + Flyback Diodes + Songle SRD-05VDC-SL-C</text>
+
+    <!-- Input Header Pins (Left side) -->
+    <g transform="translate(15, 65)">
+      <rect x="0" y="0" width="55" height="310" class="box-subcard" />
+      <text class="pin-lbl" x="12" y="20" fill="#38bdf8">INPUTS</text>
+
+      <!-- VCC & GND -->
+      <circle cx="25" cy="40" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="12" y="55" fill="#ef4444">VCC</text>
+
+      <circle cx="25" cy="75" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="12" y="90" fill="#38bdf8">GND</text>
+
+      <!-- IN1 - IN8 -->
+      <!-- y = 105, 130, 155, 180, 205, 230, 255, 280 -->
+      <circle cx="25" cy="115" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="118">IN1</text>
+      <circle cx="25" cy="140" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="143">IN2</text>
+      <circle cx="25" cy="165" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="168">IN3</text>
+      <circle cx="25" cy="190" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="193">IN4</text>
+      <circle cx="25" cy="215" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="218">IN5</text>
+      <circle cx="25" cy="240" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="243">IN6</text>
+      <circle cx="25" cy="265" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="268">IN7</text>
+      <circle cx="25" cy="290" r="4" class="pin-dot" />
+      <text class="pin-lbl" x="10" y="293">IN8</text>
+    </g>
+
+    <!-- 8 Individual Relay Blocks -->
+    <!-- Each block: width 240, height 58 -->
+    <!-- y offset starting at 80, step 68 -->
+    <g id="relays-stack">
+      <!-- Relay 1 -->
+      <g transform="translate(90, 75)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 1 (K1)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <!-- Status LED -->
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH1</text>
+        <!-- Screw Terminal Ports: NO, COM, NC -->
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 2 -->
+      <g transform="translate(90, 143)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 2 (K2)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH2</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 3 -->
+      <g transform="translate(90, 211)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 3 (K3)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH3</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 4 -->
+      <g transform="translate(90, 279)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 4 (K4)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH4</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 5 -->
+      <g transform="translate(90, 347)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 5 (K5)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH5</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 6 -->
+      <g transform="translate(90, 415)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 6 (K6)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH6</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 7 -->
+      <g transform="translate(90, 483)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 7 (K7)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH7</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+
+      <!-- Relay 8 -->
+      <g transform="translate(90, 551)">
+        <rect x="0" y="0" width="250" height="58" class="relay-unit" />
+        <text class="pin-lbl" x="15" y="22" fill="#ffffff" font-size="12">RELAY 8 (K8)</text>
+        <text class="label" x="15" y="38" fill="#93c5fd" font-size="10">Songle 10A 250VAC</text>
+        <circle cx="140" cy="20" r="4" fill="#ef4444" />
+        <text class="label" x="150" y="24" fill="#fca5a5" font-size="9">CH8</text>
+        <rect x="180" y="8" width="60" height="42" fill="#0f172a" rx="3" stroke="#475569" />
+        <circle cx="195" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="190" y="44" font-size="8">NO</text>
+        <circle cx="225" cy="29" r="4" class="pin-dot" />
+        <text class="pin-lbl" x="215" y="44" font-size="8" fill="#ef4444">COM</text>
+      </g>
+    </g>
+
+    <!-- Common COM Bus Bar across all 8 Relays -->
+    <!-- Connects all COM terminals to +5V Rail -->
+    <path d="M 315 104 L 315 580" class="wire-5v" stroke-width="3" />
+    <circle cx="315" cy="104" r="3" class="junction" />
+    <circle cx="315" cy="172" r="3" class="junction" />
+    <circle cx="315" cy="240" r="3" class="junction" />
+    <circle cx="315" cy="308" r="3" class="junction" />
+    <circle cx="315" cy="376" r="3" class="junction" />
+    <circle cx="315" cy="444" r="3" class="junction" />
+    <circle cx="315" cy="512" r="3" class="junction" />
+    <circle cx="315" cy="580" r="3" class="junction" />
+    <text class="pin-lbl" x="245" y="635" fill="#ef4444">Common COM Bus (+5V)</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 3. BREADBOARD (8x RESISTORS + 8x LEDs)     -->
+  <!-- ========================================== -->
+  <g transform="translate(810, 110)">
+    <rect x="0" y="0" width="350" height="660" class="box-card" />
+    <text class="section-hdr" x="20" y="30">MB102 Breadboard Display Stage</text>
+    <text class="subtitle" x="20" y="48">Current Limiting: 330Ω 1/4W 1% | 8x 5mm Green LEDs</text>
+
+    <!-- Power Rails along the side -->
+    <line x1="315" y1="70" x2="315" y2="630" stroke="#0284c7" stroke-width="3" />
+    <text class="pin-lbl" x="290" y="648" fill="#0284c7">GND RAIL (-)</text>
+
+    <!-- 8 Rows of Resistor + LED pairs -->
+    <!-- y offset matching relays: 104, 172, 240, 308, 376, 444, 512, 580 -->
+    <!-- Row 1 -->
+    <g transform="translate(20, 90)">
+      <!-- Wire in from Relay NO -->
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <!-- Wire to LED Anode -->
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <!-- LED 1 -->
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 1</text>
+      <!-- Wire to GND Rail -->
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 2 -->
+    <g transform="translate(20, 158)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 2</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 3 -->
+    <g transform="translate(20, 226)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 3</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 4 -->
+    <g transform="translate(20, 294)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 4</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 5 -->
+    <g transform="translate(20, 362)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 5</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 6 -->
+    <g transform="translate(20, 430)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 6</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 7 -->
+    <g transform="translate(20, 498)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 7</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+
+    <!-- Row 8 -->
+    <g transform="translate(20, 566)">
+      <rect x="30" y="6" width="65" height="16" class="resistor" fill="url(#resistorGradient)" />
+      <text class="label" x="42" y="19" font-size="9" fill="#1e293b" font-weight="bold">330Ω</text>
+      <line x1="95" y1="14" x2="140" y2="14" stroke="#10b981" stroke-width="2" />
+      <circle cx="155" cy="14" r="10" class="led-green" />
+      <text class="pin-lbl" x="175" y="18" fill="#22c55e">LED 8</text>
+      <line x1="165" y1="14" x2="295" y2="14" stroke="#0284c7" stroke-width="2" />
+      <circle cx="295" cy="14" r="3" class="junction-gnd" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 4. INTERCONNECT WIRING                     -->
+  <!-- ========================================== -->
+  
+  <!-- Uno D2-D9 to Relay IN1-IN8 -->
+  <!-- Uno pins at x = 290, y = 200 to 410 -->
+  <!-- Relay pins at x = 405, y = 225 to 400 -->
+  <path d="M 290 200 L 330 200 L 330 225 L 405 225" class="wire-sig" /> <!-- D2 -> IN1 -->
+  <path d="M 290 230 L 335 230 L 335 250 L 405 250" class="wire-sig" /> <!-- D3 -> IN2 -->
+  <path d="M 290 260 L 340 260 L 340 275 L 405 275" class="wire-sig" /> <!-- D4 -> IN3 -->
+  <path d="M 290 290 L 345 290 L 345 300 L 405 300" class="wire-sig" /> <!-- D5 -> IN4 -->
+  <path d="M 290 320 L 345 320 L 345 325 L 405 325" class="wire-sig" /> <!-- D6 -> IN5 -->
+  <path d="M 290 350 L 340 350 L 340 350 L 405 350" class="wire-sig" /> <!-- D7 -> IN6 -->
+  <path d="M 290 380 L 335 380 L 335 375 L 405 375" class="wire-sig" /> <!-- D8 -> IN7 -->
+  <path d="M 290 410 L 330 410 L 330 400 L 405 400" class="wire-sig" /> <!-- D9 -> IN8 -->
+
+  <!-- Uno D10 to Buzzer (+) -->
+  <path d="M 290 440 L 310 440 L 310 710 L 65 710" class="wire-buzzer" />
+  <circle cx="65" cy="708" r="3" fill="#c084fc" />
+
+  <!-- Uno 5V to Relay VCC & Relay COM Bus -->
+  <path d="M 130 520 L 130 540 L 360 540 L 360 150 L 405 150" class="wire-5v" />
+  <!-- Branch to COM Bus -->
+  <path d="M 360 100 L 360 80 L 695 80 L 695 214" class="wire-5v" />
+  <circle cx="360" cy="150" r="3" class="junction" />
+
+  <!-- Uno GND to Relay GND, Buzzer (-), and Breadboard GND Rail -->
+  <path d="M 170 520 L 170 730 L 115 730" class="wire-gnd" /> <!-- to Buzzer (-) -->
+  <path d="M 170 520 L 170 530 L 370 530 L 370 185 L 405 185" class="wire-gnd" /> <!-- to Relay GND -->
+  <!-- to Breadboard GND Rail -->
+  <path d="M 370 730 L 1125 730 L 1125 700" class="wire-gnd" />
+
+  <!-- Relay NO Terminals to Resistors -->
+  <!-- Relay 1 NO (x = 665, y = 214) to Resistor 1 (x = 860, y = 214) -->
+  <path d="M 665 214 L 860 214" class="wire-switched" />
+  <path d="M 665 282 L 860 282" class="wire-switched" />
+  <path d="M 665 350 L 860 350" class="wire-switched" />
+  <path d="M 665 418 L 860 418" class="wire-switched" />
+  <path d="M 665 486 L 860 486" class="wire-switched" />
+  <path d="M 665 554 L 860 554" class="wire-switched" />
+  <path d="M 665 622 L 860 622" class="wire-switched" />
+  <path d="M 665 690 L 860 690" class="wire-switched" />
+
+  <!-- ========================================== -->
+  <!-- 5. LEGEND & SYSTEM NOTES                   -->
+  <!-- ========================================== -->
+  <g transform="translate(40, 785)">
+    <rect x="0" y="0" width="1120" height="50" class="box-card" />
+    <text class="pin-lbl" x="15" y="20" fill="#38bdf8">WIRING COLOR CODE:</text>
+    
+    <line x1="160" y1="16" x2="190" y2="16" class="wire-5v" />
+    <text class="label" x="195" y="20">+5V Supply</text>
+
+    <line x1="285" y1="16" x2="315" y2="16" class="wire-gnd" />
+    <text class="label" x="320" y="20">Common Ground (GND)</text>
+
+    <line x1="480" y1="16" x2="510" y2="16" class="wire-sig" />
+    <text class="label" x="515" y="20">Digital Control (Active-LOW)</text>
+
+    <line x1="710" y1="16" x2="740" y2="16" class="wire-switched" />
+    <text class="label" x="745" y="20">Switched +5V to LED Anodes</text>
+
+    <line x1="935" y1="16" x2="965" y2="16" class="wire-buzzer" />
+    <text class="label" x="970" y="20">Buzzer Pulse (D10)</text>
+
+    <text class="note-txt" x="15" y="38" fill="#94a3b8">Note: Relays provide galvanic isolation via internal PC817 optocouplers. The 9V 1A adapter ensures stable coil excitation current without Uno USB brownout.</text>
+  </g>
+</svg>

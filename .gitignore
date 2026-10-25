@@ -1,0 +1,16 @@
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Arduino build artifacts
+*.hex
+*.bin
+*.elf
+build/
+
+# IDE / Editor folders
+.vscode/
+.idea/

@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Based LED Chaser (Running Lights) - Virtual Lab & Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --bg-card: #111827;
+      --bg-card-sub: #1e293b;
+      --border-color: #334155;
+      --border-hover: #475569;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --led-glow: rgba(16, 185, 129, 0.7);
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Top Navigation Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .status-badge.simulated {
+      background: rgba(14, 165, 233, 0.12);
+      color: #38bdf8;
+      border-color: rgba(14, 165, 233, 0.3);
+    }
+
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-serial {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+    .btn-serial:hover {
+      background: #1e3a8a;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-start {
+      background: #059669;
+      color: white;
+    }
+    .btn-start:hover {
+      background: #10b981;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-stop {
+      background: #dc2626;
+      color: white;
+    }
+    .btn-stop:hover {
+      background: #ef4444;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-audio {
+      background: var(--bg-card-sub);
+      border-color: var(--border-color);
+      color: var(--text-muted);
+    }
+    .btn-audio.active {
+      color: #38bdf8;
+      border-color: #38bdf8;
+    }
+
+    /* Main Layout Grid */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1080px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ========================================= */
+    /* HARDWARE SIMULATOR CANVAS / SVG STYLING   */
+    /* ========================================= */
+    .simulator-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #090e1a;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #1e293b;
+    }
+
+    .bench-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 720px) {
+      .bench-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Uno Graphic */
+    .uno-board {
+      background: #008184;
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+      border: 2px solid #005f62;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 280px;
+    }
+
+    .uno-chip {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-align: center;
+      color: #94a3b8;
+      letter-spacing: 1px;
+      margin: 12px 0;
+    }
+
+    .uno-pins-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .pin-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #cbd5e1;
+      align-items: center;
+    }
+
+    .pin-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #334155;
+      border: 1px solid #475569;
+      transition: all 0.15s;
+    }
+    .pin-indicator.active {
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+
+    .led-txrx {
+      display: flex;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: #e2e8f0;
+      margin-top: 6px;
+    }
+    .indicator-led {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #334155;
+      display: inline-block;
+    }
+    .indicator-led.tx-blink { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .indicator-led.rx-blink { background: #10b981; box-shadow: 0 0 6px #10b981; }
+
+    /* Relay Module Graphic */
+    .relay-module {
+      background: #0f172a;
+      border: 2px solid #3b82f6;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .relay-module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #93c5fd;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 6px;
+    }
+
+    .relays-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .relays-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .relay-box {
+      background: #1d4ed8;
+      border: 1px solid #60a5fa;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 85px;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .relay-box.energized {
+      background: #2563eb;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+      border-color: #93c5fd;
+      transform: translateY(-2px);
+    }
+
+    .relay-name {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .relay-spec {
+      font-size: 8px;
+      color: #bfdbfe;
+      font-family: var(--font-mono);
+    }
+
+    .relay-contact-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9px;
+      font-family: var(--font-mono);
+      background: rgba(15, 23, 42, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .relay-ch-led {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #450a0a;
+      border: 1px solid #7f1d1d;
+    }
+    .relay-box.energized .relay-ch-led {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    /* Breadboard & LEDs Graphic */
+    .breadboard-container {
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 16px;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .breadboard-header {
+      display: flex;
+      justify-content: space-between;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 700;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+
+    .leds-row {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      align-items: center;
+      background: #e2e8f0;
+      padding: 16px 12px;
+      border-radius: 8px;
+    }
+
+    .led-station {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .led-bulb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #14532d;
+      border: 2px solid #166534;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .led-bulb::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .led-bulb.lit {
+      background: #22c55e;
+      border-color: #86efac;
+      box-shadow: 0 0 16px #22c55e, 0 0 32px rgba(34, 197, 94, 0.8);
+      transform: scale(1.15);
+    }
+
+    .resistor-display {
+      width: 24px;
+      height: 10px;
+      background: #fbcfe8;
+      background: linear-gradient(90deg, #fdba74 0%, #ea580c 25%, #ea580c 45%, #ea580c 60%, #78350f 80%, #ca8a04 100%);
+      border-radius: 2px;
+      border: 1px solid #7c2d12;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .led-id-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: #334155;
+    }
+
+    /* Buzzer Graphic */
+    .buzzer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+
+    .buzzer-disc {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #475569;
+      border: 2px solid #64748b;
+      position: relative;
+      transition: all 0.1s;
+    }
+
+    .buzzer-disc.buzzing {
+      background: #a855f7;
+      border-color: #d8b4fe;
+      box-shadow: 0 0 14px #a855f7;
+      animation: buzz-shake 0.08s infinite;
+    }
+
+    @keyframes buzz-shake {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15) rotate(2deg); }
+      100% { transform: scale(1) rotate(-2deg); }
+    }
+
+    /* ========================================= */
+    /* IOT DASHBOARD & TELEMETRY CONTROLS        */
+    /* ========================================= */
+    .dashboard-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Quick stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-box {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+    }
+
+    /* Mode selector tabs */
+    .mode-selection-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mode-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .mode-btn {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      border-color: #38bdf8;
+      background: #1e3a5f;
+    }
+
+    .mode-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .mode-btn-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-btn-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Speed Control Slider */
+    .speed-control-card {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .speed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .speed-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #334155;
+      outline: none;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+
+    .speed-presets {
+      display: flex;
+      gap: 8px;
+    }
+
+    .preset-pill {
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: #94a3b8;
+      cursor: pointer;
+    }
+    .preset-pill:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    /* Action Control Row */
+    .action-controls-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ========================================= */
+    /* SIMULATED MQTT / WI-FI LINK PANEL         */
+    /* ========================================= */
+    .mqtt-panel {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mqtt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .mqtt-tag {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+    }
+
+    .mqtt-feed {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #020617;
+      border-radius: 6px;
+      padding: 10px;
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 6px;
+      border: 1px solid #1e293b;
+    }
+
+    .mqtt-packet {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      border-bottom: 1px dashed #1e293b;
+      padding-bottom: 4px;
+    }
+
+    .mqtt-topic {
+      color: #f59e0b;
+      flex-shrink: 0;
+      font-size: 10px;
+    }
+
+    .mqtt-payload {
+      color: #94a3b8;
+      word-break: break-all;
+    }
+
+    /* ========================================= */
+    /* SERIAL CONSOLE TERMINAL                   */
+    /* ========================================= */
+    .terminal-container {
+      margin-top: 24px;
+    }
+
+    .terminal-window {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-header {
+      background: #0f172a;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .terminal-output {
+      padding: 12px;
+      height: 140px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-line {
+      display: flex;
+      gap: 8px;
+    }
+    .terminal-line.tx { color: #38bdf8; }
+    .terminal-line.rx { color: #34d399; }
+    .terminal-line.sys { color: #94a3b8; }
+    .terminal-line.err { color: #ef4444; }
+
+    .terminal-input-bar {
+      display: flex;
+      background: #090e1a;
+      border-top: 1px solid #1e293b;
+      padding: 6px 12px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .terminal-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f8fafc;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    /* ========================================= */
+    /* FUTURE SCOPE & ARCHITECTURE SECTION       */
+    /* ========================================= */
+    .future-scope-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .future-scope-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 500px) {
+      .future-scope-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scope-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .scope-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    .scope-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .scope-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .scope-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .disclosure-box {
+      margin-top: 24px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #fcd34d;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-title">
+      <span class="brand-badge">IoT Mini Project</span>
+      <div>
+        <h1>IoT Based LED Chaser (Running Lights)</h1>
+        <p style="font-size: 12px; color: var(--text-muted);">ATmega328P Arduino Uno R3 • 8-Channel Optocoupled Relay • Web IoT Dashboard</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Status Badge -->
+      <div id="connBadge" class="status-badge simulated">
+        <span class="badge-dot"></span>
+        <span id="connBadgeText">Simulated Mode</span>
+      </div>
+
+      <!-- Web Audio Mute / Sound Toggle -->
+      <button id="audioToggleBtn" class="btn btn-audio active" title="Toggle Relay Click & Buzzer Sound">
+        🔊 Sound On
+      </button>
+
+      <!-- Connect to Arduino Web Serial Button -->
+      <button id="connectSerialBtn" class="btn btn-serial">
+        🔌 Connect to Arduino
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid: Simulator & Dashboard -->
+  <main class="grid-container">
+
+    <!-- LEFT COLUMN: Realistic Visual Hardware Simulator -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">🔬 Visual Hardware Simulator</h2>
+          <p class="card-subtitle">Real-time synchronized visualization with relay contacts and breadboard LEDs</p>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+          Active-LOW Logic (LOW = ON)
+        </div>
+      </div>
+
+      <div class="simulator-container">
+        <!-- Workbench Upper: Uno + 8-Channel Relay Module -->
+        <div class="bench-layout">
+          <!-- Arduino Uno R3 Board -->
+          <div class="uno-board">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; font-weight: 800; color: #fff;">ARDUINO UNO R3</span>
+                <span style="font-size: 8px; background: #004d4f; padding: 2px 6px; border-radius: 4px; color: #7dd3fc;">SMPS 9V 1A</span>
+              </div>
+              <div class="uno-chip">ATmega328P 16MHz</div>
+              <div class="led-txrx">
+                <span>TX: <span id="txLed" class="indicator-led"></span></span>
+                <span>RX: <span id="rxLed" class="indicator-led"></span></span>
+                <span>PWR: <span class="indicator-led" style="background: #10b981; box-shadow: 0 0 6px #10b981;"></span></span>
+              </div>
+            </div>
+
+            <!-- Digital Control Pins (D2 to D9 + D10 Buzzer) -->
+            <div class="uno-pins-row">
+              <div class="pin-label-row">
+                <span>D2-D9 (Relays)</span>
+                <span id="unoRelayPinsCount" style="color: #38bdf8;">1 Active</span>
+              </div>
+              <div class="pin-label-row">
+                <span>D10 (Buzzer)</span>
+                <span id="unoBuzzerPin" class="pin-indicator"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8-Channel Optocoupled Relay Module -->
+          <div class="relay-module">
+            <div class="relay-module-header">
+              <span>8-CH RELAY MODULE (Songle SRD-05VDC)</span>
+              <span style="color: #38bdf8; font-family: var(--font-mono);">PC817 Opto-Isolated</span>
+            </div>
+
+            <div class="relays-grid">
+              <!-- 8 Relay Units -->
+              <div class="relay-box" id="relay-0">
+                <span class="relay-name">RELAY 1 (D2)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-1">
+                <span class="relay-name">RELAY 2 (D3)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-2">
+                <span class="relay-name">RELAY 3 (D4)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-3">
+                <span class="relay-name">RELAY 4 (D5)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-4">
+                <span class="relay-name">RELAY 5 (D6)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-5">
+                <span class="relay-name">RELAY 6 (D7)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-6">
+                <span class="relay-name">RELAY 7 (D8)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+
+              <div class="relay-box" id="relay-7">
+                <span class="relay-name">RELAY 8 (D9)</span>
+                <div class="relay-contact-status">
+                  <span class="relay-ch-led"></span>
+                  <span class="contact-lbl">NO: OPEN</span>
+                </div>
+                <span class="relay-spec">10A 250VAC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workbench Lower: Breadboard with 8 Green LEDs & Resistors -->
+        <div class="breadboard-container">
+          <div class="breadboard-header">
+            <span>MB102 830-POINT BREADBOARD DISPLAY</span>
+            <span>8x 330Ω 1/4W 1% Resistors • 8x 5mm Green LEDs</span>
+          </div>
+
+          <div class="leds-row">
+            <!-- 8 LED Stations -->
+            <div class="led-station">
+              <div class="led-bulb" id="led-0"></div>
+              <div class="resistor-display" title="330 Ohm: Orange-Orange-Brown-Gold"></div>
+              <span class="led-id-lbl">LED 1</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-1"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 2</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-2"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 3</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-3"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 4</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-4"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 5</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-5"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 6</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-6"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 7</span>
+            </div>
+            <div class="led-station">
+              <div class="led-bulb" id="led-7"></div>
+              <div class="resistor-display" title="330 Ohm"></div>
+              <span class="led-id-lbl">LED 8</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5V Active Buzzer Indicator Bar -->
+        <div class="buzzer-bar">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="buzzerDisc" class="buzzer-disc"></div>
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: #f8fafc;">5V Active Buzzer (Pin D10)</div>
+              <div style="font-size: 10px; color: var(--text-muted);">Emits acoustic beep on step transition (Web Audio Synthesizer)</div>
+            </div>
+          </div>
+          <span id="buzzerStatusTxt" style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">IDLE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: IoT Dashboard Controls & Telemetry -->
+    <section class="card dashboard-panel">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">🎛️ IoT Control Dashboard</h2>
+          <p class="card-subtitle">Bidirectional command dispatch & real-time telemetry</p>
+        </div>
+        <div style="font-size: 11px; color: #38bdf8; font-family: var(--font-mono);">
+          115200 Baud UART
+        </div>
+      </div>
+
+      <!-- Quick Telemetry Stats -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">Chaser State</span>
+          <span id="statState" class="stat-val" style="color: #10b981;">RUNNING</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Current Mode</span>
+          <span id="statMode" class="stat-val">MODE 1</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Step Speed</span>
+          <span id="statSpeed" class="stat-val">200 ms</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons: Start / Stop -->
+      <div class="action-controls-row">
+        <button id="btnStart" class="btn btn-start">
+          ▶ START Chaser
+        </button>
+        <button id="btnStop" class="btn btn-stop">
+          ⏹ STOP Chaser
+        </button>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="mode-selection-group">
+        <label style="font-size: 12px; font-weight: 600; color: #cbd5e1;">Select Pattern Mode:</label>
+        <div class="mode-buttons">
+          <button class="mode-btn active" data-mode="1">
+            <div class="mode-btn-title">Mode 1: Forward</div>
+            <div class="mode-btn-desc">1 &rarr; 8 Sequential Chaser</div>
+          </button>
+          <button class="mode-btn" data-mode="2">
+            <div class="mode-btn-title">Mode 2: Reverse</div>
+            <div class="mode-btn-desc">8 &rarr; 1 Inverted Chaser</div>
+          </button>
+          <button class="mode-btn" data-mode="3">
+            <div class="mode-btn-title">Mode 3: Bounce</div>
+            <div class="mode-btn-desc">1 &rarr; 8 &rarr; 1 Ping-Pong</div>
+          </button>
+          <button class="mode-btn" data-mode="4">
+            <div class="mode-btn-title">Mode 4: All-Blink</div>
+            <div class="mode-btn-desc">Simultaneous Strobe</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Speed Control Slider -->
+      <div class="speed-control-card">
+        <div class="speed-header">
+          <span>Animation Speed (Interval Delay)</span>
+          <span id="sliderValDisplay" style="color: #38bdf8; font-family: var(--font-mono);">200 ms (5.0 Hz)</span>
+        </div>
+        <input type="range" id="speedSlider" class="speed-slider" min="50" max="1000" step="10" value="200">
+        <div class="speed-presets">
+          <span class="preset-pill" data-preset="80">Fast (80ms)</span>
+          <span class="preset-pill" data-preset="200">Normal (200ms)</span>
+          <span class="preset-pill" data-preset="450">Slow (450ms)</span>
+          <span class="preset-pill" data-preset="800">Ultra-Slow (800ms)</span>
+        </div>
+      </div>
+
+      <!-- Simulated MQTT / Wi-Fi Cloud Gateway Panel -->
+      <div class="mqtt-panel">
+        <div class="mqtt-header">
+          <span>📡 Simulated MQTT / Cloud Gateway</span>
+          <span class="mqtt-tag">Broker: hivemq-cloud / ESP-Bridge</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted);">
+          Simulating upstream IoT bridge publish & subscribe stream:
+        </div>
+        <div class="mqtt-feed" id="mqttFeed">
+          <div class="mqtt-packet">
+            <span class="mqtt-topic">ledchaser/telemetry:</span>
+            <span class="mqtt-payload">{"status":"INIT","source":"web_gateway","relay_count":8}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LOWER SECTION: Command Terminal / Serial Console -->
+  <section class="card terminal-container">
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <span>SERIAL LOG & TERMINAL (115200 BAUD)</span>
+        <button id="clearTerminalBtn" style="background: transparent; border: 1px solid #334155; color: #94a3b8; font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer;">Clear Console</button>
+      </div>
+      <div class="terminal-output" id="terminalOutput">
+        <div class="terminal-line sys">[SYSTEM] Web Virtual Workbench initialized. Ready for simulation or USB Web Serial.</div>
+        <div class="terminal-line sys">[INFO] Supported commands: START, STOP, SPEED:&lt;ms&gt;, MODE:&lt;1-4&gt;, STATUS</div>
+      </div>
+      <div class="terminal-input-bar">
+        <span style="color: #38bdf8; font-family: var(--font-mono); font-size: 12px;">cmd &gt;</span>
+        <input type="text" id="terminalInput" class="terminal-input" placeholder="Type serial command (e.g. MODE:3, SPEED:120, START, STOP)...">
+        <button id="sendCmdBtn" class="btn btn-serial" style="padding: 4px 12px; font-size: 11px;">Send</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATIONAL & FUTURE SCOPE SECTION -->
+  <section style="margin-top: 24px;">
+    <h3 style="font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;">🚀 Project Architecture & Future IoT Upgrades</h3>
+    <div class="future-scope-grid">
+      <div class="scope-card">
+        <div class="scope-icon">📶</div>
+        <div class="scope-title">ESP32 / ESP8266 Migration</div>
+        <div class="scope-desc">Replace Arduino Uno with an ESP32 SoC for onboard 2.4GHz Wi-Fi, BLE, and direct MQTT broker connection without host PC bridge.</div>
+      </div>
+      <div class="scope-card">
+        <div class="scope-icon">📱</div>
+        <div class="scope-title">Mobile App & Blynk Cloud</div>
+        <div class="scope-desc">Integrate Blynk IoT or Flutter mobile app for worldwide remote switching, push notifications, and customizable running light presets.</div>
+      </div>
+      <div class="scope-card">
+        <div class="scope-icon">⏰</div>
+        <div class="scope-title">Cloud Scheduling & NTP</div>
+        <div class="scope-desc">Implement NTP (Network Time Protocol) to trigger light chasing routines at scheduled times (e.g., store displays, festival lighting).</div>
+      </div>
+      <div class="scope-card">
+        <div class="scope-icon">🎙️</div>
+        <div class="scope-title">Sensor & Voice Triggers</div>
+        <div class="scope-desc">Add microphone sound sensors for music-reactive running lights, LDRs for twilight activation, and Alexa/Google Home voice control.</div>
+      </div>
+    </div>
+
+    <!-- Honest Engineering Disclosure Box -->
+    <div class="disclosure-box">
+      <span style="font-size: 20px;">⚠️</span>
+      <div>
+        <strong>College Project Disclosure:</strong> The base Arduino Uno R3 ATmega328P microcontroller has no native Wi-Fi or BLE hardware. In this project architecture, IoT connectivity is achieved via the modern <strong>Web Serial API</strong> acting as a bidirectional hardware-to-cloud bridge, accompanied by a <strong>Simulated MQTT Link</strong>. Full untethered IoT is the direct upgrade path via ESP8266/ESP32.
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: SIMULATOR ENGINE + WEB SERIAL API + WEB AUDIO + MQTT VIRTUAL  -->
+  <!-- ========================================================================= -->
+  <script>
+    // --- Application State ---
+    const state = {
+      isRunning: true,
+      mode: 1,
+      speed: 200,
+      stepIndex: 0,
+      bounceDir: 1,
+      blinkToggle: false,
+      isUsbConnected: false,
+      audioEnabled: true,
+      lastStepTime: 0,
+      activeRelayIndex: 0
+    };
+
+    // --- DOM Elements ---
+    const connBadge = document.getElementById('connBadge');
+    const connBadgeText = document.getElementById('connBadgeText');
+    const connectSerialBtn = document.getElementById('connectSerialBtn');
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const speedSlider = document.getElementById('speedSlider');
+    const sliderValDisplay = document.getElementById('sliderValDisplay');
+    const statState = document.getElementById('statState');
+    const statMode = document.getElementById('statMode');
+    const statSpeed = document.getElementById('statSpeed');
+    const unoRelayPinsCount = document.getElementById('unoRelayPinsCount');
+    const unoBuzzerPin = document.getElementById('unoBuzzerPin');
+    const buzzerDisc = document.getElementById('buzzerDisc');
+    const buzzerStatusTxt = document.getElementById('buzzerStatusTxt');
+    const txLed = document.getElementById('txLed');
+    const rxLed = document.getElementById('rxLed');
+    const mqttFeed = document.getElementById('mqttFeed');
+    const terminalOutput = document.getElementById('terminalOutput');
+    const terminalInput = document.getElementById('terminalInput');
+    const sendCmdBtn = document.getElementById('sendCmdBtn');
+    const clearTerminalBtn = document.getElementById('clearTerminalBtn');
+
+    // --- Web Audio API for Relay Clicks & Buzzer Beeps ---
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playBuzzerBeep(duration = 0.025, freq = 2500) {
+      if (!state.audioEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+    function playRelayClick() {
+      if (!state.audioEnabled || !audioCtx) return;
+      try {
+        // Synthesize short mechanical click impulse
+        const bufferSize = audioCtx.sampleRate * 0.015;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1200;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.12;
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+      } catch (e) {}
+    }
+
+    // Toggle sound button
+    audioToggleBtn.addEventListener('click', () => {
+      initAudio();
+      state.audioEnabled = !state.audioEnabled;
+      if (state.audioEnabled) {
+        audioToggleBtn.textContent = '🔊 Sound On';
+        audioToggleBtn.classList.add('active');
+        logTerminal('[AUDIO] Web Audio sound effects enabled', 'sys');
+      } else {
+        audioToggleBtn.textContent = '🔇 Muted';
+        audioToggleBtn.classList.remove('active');
+        logTerminal('[AUDIO] Web Audio sound effects muted', 'sys');
+      }
+    });
+
+    // --- Web Serial API Variables ---
+    let port = null;
+    let reader = null;
+    let writer = null;
+    let readableStreamClosed = null;
+    let writableStreamClosed = null;
+
+    // --- Terminal & MQTT Log Helpers ---
+    function logTerminal(text, type = 'rx') {
+      const line = document.createElement('div');
+      line.className = `terminal-line ${type}`;
+      line.textContent = text;
+      terminalOutput.appendChild(line);
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    clearTerminalBtn.addEventListener('click', () => {
+      terminalOutput.innerHTML = '';
+      logTerminal('[CONSOLE] Cleared', 'sys');
+    });
+
+    function logMqtt(topic, payload) {
+      const packet = document.createElement('div');
+      packet.className = 'mqtt-packet';
+      packet.innerHTML = `
+        <span class="mqtt-topic">${topic}:</span>
+        <span class="mqtt-payload">${typeof payload === 'string' ? payload : JSON.stringify(payload)}</span>
+      `;
+      mqttFeed.prepend(packet);
+      while (mqttFeed.children.length > 25) {
+        mqttFeed.removeChild(mqttFeed.lastChild);
+      }
+    }
+
+    function blinkTx() {
+      txLed.classList.add('tx-blink');
+      setTimeout(() => txLed.classList.remove('tx-blink'), 80);
+    }
+
+    function blinkRx() {
+      rxLed.classList.add('rx-blink');
+      setTimeout(() => rxLed.classList.remove('rx-blink'), 80);
+    }
+
+    // --- UI Update Functions ---
+    function updateHardwareDisplay(activeRelays) {
+      // activeRelays: Array of indices [0..7] that are ON, or empty array
+      for (let i = 0; i < 8; i++) {
+        const isRelayOn = activeRelays.includes(i);
+        const relayEl = document.getElementById(`relay-${i}`);
+        const ledEl = document.getElementById(`led-${i}`);
+        const contactLbl = relayEl.querySelector('.contact-lbl');
+
+        if (isRelayOn) {
+          relayEl.classList.add('energized');
+          contactLbl.textContent = 'NO: CLOSED (+5V)';
+          ledEl.classList.add('lit');
+        } else {
+          relayEl.classList.remove('energized');
+          contactLbl.textContent = 'NO: OPEN';
+          ledEl.classList.remove('lit');
+        }
+      }
+
+      unoRelayPinsCount.textContent = `${activeRelays.length} Energized`;
+
+      // Buzzer UI Pulse
+      if (activeRelays.length > 0 && state.isRunning) {
+        buzzerDisc.classList.add('buzzing');
+        unoBuzzerPin.classList.add('active');
+        buzzerStatusTxt.textContent = 'BEEP (2.5 kHz)';
+        buzzerStatusTxt.style.color = '#a855f7';
+        playBuzzerBeep();
+        playRelayClick();
+        setTimeout(() => {
+          buzzerDisc.classList.remove('buzzing');
+          unoBuzzerPin.classList.remove('active');
+          buzzerStatusTxt.textContent = 'IDLE';
+          buzzerStatusTxt.style.color = '#94a3b8';
+        }, 35);
+      }
+    }
+
+    function updateDashboardTelemetry() {
+      statState.textContent = state.isRunning ? 'RUNNING' : 'STOPPED';
+      statState.style.color = state.isRunning ? '#10b981' : '#ef4444';
+      statMode.textContent = `MODE ${state.mode}`;
+      statSpeed.textContent = `${state.speed} ms`;
+      const freq = (1000 / state.speed).toFixed(1);
+      sliderValDisplay.textContent = `${state.speed} ms (${freq} Hz)`;
+      speedSlider.value = state.speed;
+
+      // Update mode buttons active state
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-mode')) === state.mode) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // --- Internal Chaser Simulation Engine (Runs when not connected to real Arduino) ---
+    function stepSimulation() {
+      if (!state.isRunning) {
+        updateHardwareDisplay([]);
+        return;
+      }
+
+      let activeList = [];
+
+      switch (state.mode) {
+        case 1: // Forward: 0 -> 7
+          activeList = [state.stepIndex];
+          state.stepIndex = (state.stepIndex + 1) % 8;
+          break;
+
+        case 2: // Reverse: 7 -> 0
+          activeList = [7 - state.stepIndex];
+          state.stepIndex = (state.stepIndex + 1) % 8;
+          break;
+
+        case 3: // Bounce: 0 -> 7 -> 0
+          activeList = [state.stepIndex];
+          state.stepIndex += state.bounceDir;
+          if (state.stepIndex >= 7) {
+            state.stepIndex = 7;
+            state.bounceDir = -1;
+          } else if (state.stepIndex <= 0) {
+            state.stepIndex = 0;
+            state.bounceDir = 1;
+          }
+          break;
+
+        case 4: // All-Blink
+          state.blinkToggle = !state.blinkToggle;
+          activeList = state.blinkToggle ? [0, 1, 2, 3, 4, 5, 6, 7] : [];
+          break;
+      }
+
+      updateHardwareDisplay(activeList);
+
+      // Publish simulated telemetry to MQTT topic
+      logMqtt('college/iot/ledchaser/telemetry', {
+        state: state.isRunning ? 'RUNNING' : 'STOPPED',
+        mode: state.mode,
+        speed_ms: state.speed,
+        active_relays: activeList.map(i => `IN${i+1}`),
+        timestamp: Date.now()
+      });
+    }
+
+    let simTimer = null;
+    function resetSimTimer() {
+      if (simTimer) clearInterval(simTimer);
+      if (!state.isUsbConnected) {
+        simTimer = setInterval(stepSimulation, state.speed);
+      }
+    }
+
+    // Initialize default simulation
+    resetSimTimer();
+    updateDashboardTelemetry();
+
+    // --- Command Dispatcher (Web Serial or Internal Fallback) ---
+    async function sendSerialCommand(cmd) {
+      initAudio();
+      cmd = cmd.trim();
+      blinkTx();
+      logTerminal(`[TX] > ${cmd}`, 'tx');
+
+      // Publish command to simulated MQTT topic
+      logMqtt('college/iot/ledchaser/cmd', {
+        command: cmd,
+        issued_at: new Date().toISOString(),
+        client: state.isUsbConnected ? 'usb_serial' : 'sim_dashboard'
+      });
+
+      if (state.isUsbConnected && writer) {
+        try {
+          const encoder = new TextEncoder();
+          await writer.write(encoder.encode(cmd + '\n'));
+        } catch (err) {
+          logTerminal(`[ERR] Write error: ${err.message}`, 'err');
+        }
+      } else {
+        // Process in internal simulator
+        processSimulatedCommand(cmd);
+      }
+    }
+
+    function processSimulatedCommand(cmd) {
+      const upper = cmd.toUpperCase();
+      if (upper === 'START') {
+        state.isRunning = true;
+        logTerminal(`[ACK] START: Chaser started`, 'rx');
+        resetSimTimer();
+      } else if (upper === 'STOP') {
+        state.isRunning = false;
+        logTerminal(`[ACK] STOP: Chaser stopped, all relays open`, 'rx');
+        updateHardwareDisplay([]);
+      } else if (upper.startsWith('SPEED:')) {
+        const val = parseInt(upper.substring(6));
+        if (val >= 30 && val <= 3000) {
+          state.speed = val;
+          logTerminal(`[ACK] SPEED updated to ${val} ms`, 'rx');
+          resetSimTimer();
+        } else {
+          logTerminal(`[ERR] Invalid SPEED range (30-3000)`, 'err');
+        }
+      } else if (upper.startsWith('MODE:')) {
+        const m = parseInt(upper.substring(5));
+        if (m >= 1 && m <= 4) {
+          state.mode = m;
+          state.stepIndex = 0;
+          state.bounceDir = 1;
+          state.blinkToggle = false;
+          logTerminal(`[ACK] MODE switched to ${m}`, 'rx');
+          resetSimTimer();
+        } else {
+          logTerminal(`[ERR] Invalid MODE (1-4)`, 'err');
+        }
+      } else if (upper === 'STATUS') {
+        logTerminal(`[STATUS] running:${state.isRunning}, mode:${state.mode}, speed:${state.speed}ms`, 'rx');
+      } else {
+        logTerminal(`[ERR] Unknown command: ${cmd}`, 'err');
+      }
+      updateDashboardTelemetry();
+    }
+
+    // --- Web Serial API Connection Handler ---
+    connectSerialBtn.addEventListener('click', async () => {
+      initAudio();
+
+      if (!('serial' in navigator)) {
+        alert('Web Serial API is not supported in this browser.\nUse Chrome, Edge, or Opera on Windows/Mac/Linux.\nDefaulting to on-page Simulator.');
+        logTerminal('[WARN] Web Serial API not supported in this browser. Running internal simulation.', 'err');
+        return;
+      }
+
+      if (state.isUsbConnected) {
+        // Disconnect
+        disconnectSerial();
+        return;
+      }
+
+      try {
+        logTerminal('[SERIAL] Requesting USB Port (115200 baud)...', 'sys');
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+
+        state.isUsbConnected = true;
+        connBadge.className = 'status-badge connected';
+        connBadgeText.textContent = 'Connected via USB (COM)';
+        connectSerialBtn.textContent = '🔌 Disconnect USB';
+        connectSerialBtn.style.background = '#7f1d1d';
+        connectSerialBtn.style.borderColor = '#ef4444';
+
+        if (simTimer) clearInterval(simTimer); // Pause internal simulator clock
+
+        logTerminal('[SERIAL] Port opened successfully at 115200 baud!', 'sys');
+
+        const textDecoder = new TextDecoderStream();
+        readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+        reader = textDecoder.readable.getReader();
+
+        const textEncoder = new TextEncoderStream();
+        writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+        writer = textEncoder.writable.getWriter();
+
+        readSerialLoop();
+
+      } catch (err) {
+        logTerminal(`[SERIAL ERROR] ${err.message}`, 'err');
+        disconnectSerial();
+      }
+    });
+
+    async function readSerialLoop() {
+      let buffer = '';
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (value) {
+            blinkRx();
+            buffer += value;
+            let lines = buffer.split('\n');
+            buffer = lines.pop(); // keep last incomplete line
+
+            for (let line of lines) {
+              line = line.trim();
+              if (line.length > 0) {
+                logTerminal(`[RX] ${line}`, 'rx');
+
+                // Check for JSON telemetry from real Arduino
+                if (line.startsWith('{') && line.endsWith('}')) {
+                  try {
+                    const data = JSON.parse(line);
+                    if (data.telemetry) {
+                      handleRealArduinoTelemetry(data.telemetry);
+                    }
+                  } catch (e) {}
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        logTerminal(`[SERIAL READ ERR] ${err.message}`, 'err');
+      } finally {
+        disconnectSerial();
+      }
+    }
+
+    function handleRealArduinoTelemetry(t) {
+      if (t.running !== undefined) state.isRunning = t.running;
+      if (t.mode !== undefined) state.mode = t.mode;
+      if (t.speed !== undefined) state.speed = t.speed;
+
+      updateDashboardTelemetry();
+
+      // Update relays based on activePin or relayIndex
+      if (t.relayIndex === 99) {
+        updateHardwareDisplay([0, 1, 2, 3, 4, 5, 6, 7]);
+      } else if (t.relayIndex >= 0 && t.relayIndex < 8) {
+        updateHardwareDisplay([t.relayIndex]);
+      } else {
+        updateHardwareDisplay([]);
+      }
+    }
+
+    async function disconnectSerial() {
+      state.isUsbConnected = false;
+      connBadge.className = 'status-badge simulated';
+      connBadgeText.textContent = 'Simulated Mode';
+      connectSerialBtn.textContent = '🔌 Connect to Arduino';
+      connectSerialBtn.style.background = '';
+      connectSerialBtn.style.borderColor = '';
+
+      if (reader) {
+        try { await reader.cancel(); } catch (e) {}
+        reader = null;
+      }
+      if (writer) {
+        try { await writer.close(); } catch (e) {}
+        writer = null;
+      }
+      if (port) {
+        try { await port.close(); } catch (e) {}
+        port = null;
+      }
+
+      logTerminal('[SERIAL] Disconnected. Seamlessly resumed internal simulator.', 'sys');
+      resetSimTimer();
+    }
+
+    // --- UI Event Listeners ---
+    btnStart.addEventListener('click', () => sendSerialCommand('START'));
+    btnStop.addEventListener('click', () => sendSerialCommand('STOP'));
+
+    speedSlider.addEventListener('input', (e) => {
+      const val = e.target.value;
+      sendSerialCommand(`SPEED:${val}`);
+    });
+
+    document.querySelectorAll('.preset-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const val = pill.getAttribute('data-preset');
+        sendSerialCommand(`SPEED:${val}`);
+      });
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const m = btn.getAttribute('data-mode');
+        sendSerialCommand(`MODE:${m}`);
+      });
+    });
+
+    // Terminal Input Bar
+    sendCmdBtn.addEventListener('click', () => {
+      const val = terminalInput.value.trim();
+      if (val) {
+        sendSerialCommand(val);
+        terminalInput.value = '';
+      }
+    });
+
+    terminalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = terminalInput.value.trim();
+        if (val) {
+          sendSerialCommand(val);
+          terminalInput.value = '';
+        }
+      }
+    });
+
+    // Initialize Web Audio on first user interaction
+    window.addEventListener('click', () => initAudio(), { once: true });
+  </script>
+</body>
+</html>
