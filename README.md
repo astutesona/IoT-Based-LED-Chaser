@@ -1,6 +1,20 @@
 # IoT Based LED Chaser (Running Lights)
 ### Mini Project Report & Technical Documentation
 
+[![Live Simulator](https://img.shields.io/badge/Live%20Simulator-GitHub%20Pages-success?style=for-the-badge&logo=github)](https://astutesona.github.io/IoT-Based-LED-Chaser/)
+[![Circuit Diagram](https://img.shields.io/badge/Schematic-circuit__diagram.svg-blue?style=for-the-badge)](./circuit_diagram.svg)
+[![Viva Questions](https://img.shields.io/badge/Viva%20Voce-15%20Q%26A-purple?style=for-the-badge)](./viva_questions.md)
+[![Arduino Firmware](https://img.shields.io/badge/Firmware-chaser.ino-teal?style=for-the-badge)](./chaser.ino)
+
+---
+
+## 📌 Quick Project Links
+- 🌐 **Live Web Workbench & Dashboard:** [https://astutesona.github.io/IoT-Based-LED-Chaser/](https://astutesona.github.io/IoT-Based-LED-Chaser/)
+- 🖼️ **Circuit Schematic (Vector SVG):** [`circuit_diagram.svg`](./circuit_diagram.svg)
+- ❓ **Viva Voce Exam Questions & Answers:** [`viva_questions.md`](./viva_questions.md)
+- 💻 **Arduino Uno Source Code:** [`chaser.ino`](./chaser.ino)
+- ☁️ **Wokwi Online Simulation:** [`diagram.json`](./diagram.json) & [`sketch.ino`](./sketch.ino)
+
 ---
 
 ## 1. Project Title & Abstract
@@ -72,6 +86,9 @@ Firmware execution is engineered around a non-blocking `millis()` timing state m
 | **LED Cathodes (1–8)** | Breadboard **Common GND Rail** | Black | Returns forward current to Uno GND |
 | **Buzzer Negative (-)** | Breadboard **Common GND Rail** | Black | Common ground return |
 | **Barrel Jack** | 9V 1A DC Adapter | External | Powers onboard 5V regulator with reserve capacity |
+
+### 4.3 Complete Circuit Schematic
+![Complete Circuit Schematic](./circuit_diagram.svg)
 
 ---
 
@@ -175,8 +192,8 @@ All commands are ASCII strings terminated by newline (`\n` or `\r`):
 ### Method 2: Wokwi Online Cloud Simulation (`wokwi.com`)
 1. Open [wokwi.com](https://wokwi.com) in your web browser.
 2. Start a new **Arduino Uno** project.
-3. Replace the default `sketch.ino` with the code from [`sketch.ino`](file:///c:/Users/astut/Desktop/IOT_MiniProject/sketch.ino).
-4. Switch to the `diagram.json` tab and paste the contents of [`diagram.json`](file:///c:/Users/astut/Desktop/IOT_MiniProject/diagram.json).
+3. Replace the default `sketch.ino` with the code from [`sketch.ino`](./sketch.ino).
+4. Switch to the `diagram.json` tab and paste the contents of [`diagram.json`](./diagram.json).
 5. Click the green **Play** button to simulate the complete 8-relay circuit and Arduino sketch online.
 
 ### Method 3: Real Physical Hardware Setup
@@ -186,7 +203,7 @@ All commands are ASCII strings terminated by newline (`\n` or `\r`):
 4. Connect Uno 5V and GND to the Relay module VCC and GND.
 5. Bus the Relay COM terminals to 5V; wire each NO terminal to the corresponding resistor/LED anode.
 6. Connect the 9V 1A adapter to the Uno DC barrel jack.
-7. Open [`chaser.ino`](file:///c:/Users/astut/Desktop/IOT_MiniProject/chaser.ino) in the Arduino IDE.
+7. Open [`chaser.ino`](./chaser.ino) in the Arduino IDE.
 8. Select **Tools $\rightarrow$ Board $\rightarrow$ Arduino Uno** and the corresponding **COM Port**.
 9. Click **Upload**.
 10. Open `index.html` in Chrome/Edge, click **"🔌 Connect to Arduino"**, and operate your real hardware directly from the web dashboard.
